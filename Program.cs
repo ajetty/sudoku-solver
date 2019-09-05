@@ -10,11 +10,22 @@ namespace SudokuSolver
 
             LatinSquare.Graph graph = new Graph();
 
+            graph.Print();
 
+            Console.WriteLine("Enter values: ");
+            string[] tokens = Console.ReadLine().Split(' ');
 
-            Console.WriteLine("Hello World!");
+            Array.ForEach(tokens, x => Console.WriteLine(x));
+
+            graph.Update(tokens);
+
+            graph.Print();
+
+            
+
             Console.Write("Press any key to continue...");
             Console.ReadKey(true);
         }
+
     }
 }
