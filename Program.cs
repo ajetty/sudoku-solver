@@ -19,9 +19,11 @@ namespace SudokuSolver
 
             graph.Update(tokens);
 
+            
+
             graph.Print();
 
-            
+            graph.AssignColor();
 
             Console.Write("Press any key to continue...");
             Console.ReadKey(true);

@@ -7,7 +7,7 @@ namespace LatinSquare
     class Vertex
     {
         public int index { get; set; } //index within latin square, 0 to 80
-        public List<int> AdjacencyList { get; set; }
+        public List<int> AdjacencyList { get; set; } //not including itself
         public int color { get; set; } //white=0, red=1, blue=2, green=3, violet=4, yellow=5, pink=6, black=7, orange=8, brown=9 
     }
 
@@ -131,6 +131,47 @@ namespace LatinSquare
 
         }
 
+        public int AssignColor()
+        {
+            int assignedColor = 0;
+            String vertex = MaxVertexCount();
+
+            assignedColor = colorSort(vertex);
+
+            Console.WriteLine("Assigned Color: {0}", assignedColor);
+            foreach (int element in dictionary[vertex].AdjacencyList) { Console.Write(element + " "); };
+            return assignedColor;
+        }
+
+        private int colorSort(String vertexName) //insertion sort for vertex's color
+        {
+            int length = dictionary[vertexName.ToString()].AdjacencyList.Count;
+            int[] colorArray = new int[length];
+            int count = 0;
+            int color = -1;
+
+            foreach(int element in dictionary[vertexName.ToString()].AdjacencyList)
+            {
+                colorArray[count] = dictionary[element.ToString()].color;
+                count++;
+            }
+
+            Array.Sort(colorArray);
+
+            for(int x = 0; x < colorArray.Length - 1; x++)
+            {
+                if(colorArray[x+1] - colorArray[x] > 1)
+                {
+                    color = colorArray[x] + 1;
+                    break;
+                }
+            }
+
+            return color;
+
+        }
+
+
         private String MaxVertexCount()
         {
             string highest = String.Empty;
@@ -139,25 +180,27 @@ namespace LatinSquare
 
             foreach(KeyValuePair<string, Vertex> kvp in dictionary)
             {
-                foreach(int vertex in kvp.Value.AdjacencyList)
+                if (kvp.Value.color == 0)
                 {
-                    
-                    if(dictionary[vertex.ToString()].color > 0)
+                    foreach (int vertex in kvp.Value.AdjacencyList)
                     {
-                        colorCount++;
+
+                        if (dictionary[vertex.ToString()].color > 0)
+                        {
+                            colorCount++;
+                        }
                     }
-                }
 
-                if(colorCount > highestCount)
-                {
-                    highest = kvp.Key;
-                    highestCount = colorCount;
-                }
+                    if (colorCount > highestCount)
+                    {
+                        highest = kvp.Key;
+                        highestCount = colorCount;
+                    }
 
-                //Console.WriteLine("Key: {0} Count: {1} Highest: {2}", kvp.Key, colorCount, highestCount);
-                colorCount = 0;
+                    colorCount = 0;
+                }
             }
-
+            Console.WriteLine("Highest: {0}", highest);
             return highest;
         }
     }
