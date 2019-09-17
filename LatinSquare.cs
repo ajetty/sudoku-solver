@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace LatinSquare
@@ -126,24 +127,33 @@ namespace LatinSquare
             }
         }
 
-        private void DSatur()
+        public void DSatur()
         {
+            var vertex = MaxVertexCount();
 
+            while(vertex != String.Empty)
+            {
+                dictionary[vertex.ToString()].color = AssignColor(vertex);
+                Console.WriteLine("Vertex {0} Assigned Color {1}", vertex, dictionary[vertex.ToString()].color);
+                vertex = MaxVertexCount();
+
+                Print();
+            }
         }
 
-        public int AssignColor()
+        public int AssignColor(String vertex)
         {
             int assignedColor = 0;
-            String vertex = MaxVertexCount();
+            //String vertex = MaxVertexCount();
 
-            assignedColor = colorSort(vertex);
+            assignedColor = selectColor(vertex);
 
-            Console.WriteLine("Assigned Color: {0}", assignedColor);
-            foreach (int element in dictionary[vertex].AdjacencyList) { Console.Write(element + " "); };
+            //Console.WriteLine("Vertex: {0} Assigned Color: {1}", vertex, assignedColor);
+            //foreach (int element in dictionary[vertex].AdjacencyList) { Console.Write(element + " "); };
             return assignedColor;
         }
 
-        private int colorSort(String vertexName) //insertion sort for vertex's color
+        private int selectColor(String vertexName) //insertion sort for vertex's color
         {
             int length = dictionary[vertexName.ToString()].AdjacencyList.Count;
             int[] colorArray = new int[length];
@@ -165,6 +175,12 @@ namespace LatinSquare
                     color = colorArray[x] + 1;
                     break;
                 }
+            }
+
+            if(color == -1)
+            {
+                Console.WriteLine("{color} {vertexName}");
+                dictionary[vertexName].AdjacencyList.ToList().ForEach(i => Console.Write(i.ToString() + " "));
             }
 
             return color;
@@ -200,7 +216,7 @@ namespace LatinSquare
                     colorCount = 0;
                 }
             }
-            Console.WriteLine("Highest: {0}", highest);
+            //Console.WriteLine("Highest: {0}", highest);
             return highest;
         }
     }

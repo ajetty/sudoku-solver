@@ -23,7 +23,7 @@ namespace SudokuSolver
 
             graph.Print();
 
-            graph.AssignColor();
+            graph.DSatur();
 
             Console.Write("Press any key to continue...");
             Console.ReadKey(true);
