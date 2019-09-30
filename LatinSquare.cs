@@ -14,7 +14,7 @@ namespace LatinSquare
 
     class Graph
     {
-        Dictionary<String, Vertex> dictionary = new Dictionary<String, Vertex>();
+        Dictionary<int, Vertex> dictionary = new Dictionary<int, Vertex>();
 
         public Graph() => setDictionary();
 
@@ -56,7 +56,7 @@ namespace LatinSquare
                     vertex.color = 0;
                     vertex.AdjacencyList = edges;
 
-                    dictionary.Add(name.ToString(), vertex);
+                    dictionary.Add(name, vertex);
                     name++;
                 }
 
@@ -67,7 +67,7 @@ namespace LatinSquare
 
             for(int x = 1; x <= dictionary.Count; x++)
             {
-                index = dictionary[x.ToString()].index;
+                index = dictionary[x].index;
                 position = (row: index/9, col: index%9);
                 position = (row: (position.row / 3) * 3, col: (position.col / 3) * 3);
 
@@ -75,9 +75,9 @@ namespace LatinSquare
 
                 foreach (int element in offset)
                 {
-                    if (dictionary[x.ToString()].AdjacencyList.Contains(element + corner) == false && (element + corner) != x)
+                    if (dictionary[x].AdjacencyList.Contains(element + corner) == false && (element + corner) != x)
                     {
-                        dictionary[x.ToString()].AdjacencyList.Add(element + corner);
+                        dictionary[x].AdjacencyList.Add(element + corner);
                     }
                 }
 
@@ -88,7 +88,7 @@ namespace LatinSquare
         public void Print()
         {
             int count = 0;
-            String[] array = new String[81];
+            int[] array = new int[81];
             dictionary.Keys.CopyTo(array, 0);
 
             Console.WriteLine("---------------------------------");
@@ -110,7 +110,7 @@ namespace LatinSquare
             {
                 for (int col = 0; col < 9; col++)
                 {
-                    Console.Write(dictionary[count.ToString()].color + " ");
+                    Console.Write(dictionary[count].color + " ");
                     count++;
                 }
 
@@ -123,46 +123,59 @@ namespace LatinSquare
         {
             for (int x = 0; x < tokens.Length; x += 2)
             {
-                dictionary[tokens[x]].color = Int32.Parse(tokens[x+1]);
+                dictionary[Convert.ToInt32(tokens[x])].color = Int32.Parse(tokens[x+1]);
             }
         }
 
         public void DSatur()
         {
-            var vertex = MaxVertexCount();
+            List<Tuple<int, int>> vertexUncoloredList = MaxVertexCountList();
+            int length = vertexUncoloredList.Count;
+            int color = 0;
 
-            while(vertex != String.Empty)
+            foreach(Tuple<int,int> element in vertexUncoloredList) { Console.WriteLine("{0} {1} ", element.Item1, element.Item2); }
+
+            for (int x = 0; x < vertexUncoloredList.Count; x++)
             {
-                dictionary[vertex.ToString()].color = AssignColor(vertex);
-                Console.WriteLine("Vertex {0} Assigned Color {1}", vertex, dictionary[vertex.ToString()].color);
-                vertex = MaxVertexCount();
+                color = AssignColor(vertexUncoloredList[x].Item1);
 
-                Print();
+                if (color == -1)
+                {
+                    Console.WriteLine("Vertex: {0} {1} Color: {2}", vertexUncoloredList[x].Item1, vertexUncoloredList[x].Item2, color);
+                    break;
+                }
+                else
+                {
+                    dictionary[vertexUncoloredList[x].Item1].color = color;
+                }
+
             }
+
+            Print();
         }
 
-        public int AssignColor(String vertex)
+        public int AssignColor(int vertex)
         {
             int assignedColor = 0;
             //String vertex = MaxVertexCount();
 
-            assignedColor = selectColor(vertex);
+            assignedColor = SelectColor(vertex);
 
             //Console.WriteLine("Vertex: {0} Assigned Color: {1}", vertex, assignedColor);
             //foreach (int element in dictionary[vertex].AdjacencyList) { Console.Write(element + " "); };
             return assignedColor;
         }
 
-        private int selectColor(String vertexName) //insertion sort for vertex's color
+        private int SelectColor(int vertexName) //insertion sort for vertex's color
         {
-            int length = dictionary[vertexName.ToString()].AdjacencyList.Count;
+            int length = dictionary[vertexName].AdjacencyList.Count;
             int[] colorArray = new int[length];
             int count = 0;
             int color = -1;
 
-            foreach(int element in dictionary[vertexName.ToString()].AdjacencyList)
+            foreach(int element in dictionary[vertexName].AdjacencyList)
             {
-                colorArray[count] = dictionary[element.ToString()].color;
+                colorArray[count] = dictionary[element].color;
                 count++;
             }
 
@@ -177,31 +190,25 @@ namespace LatinSquare
                 }
             }
 
-            if(color == -1)
-            {
-                Console.WriteLine("{color} {vertexName}");
-                dictionary[vertexName].AdjacencyList.ToList().ForEach(i => Console.Write(i.ToString() + " "));
-            }
-
             return color;
 
         }
 
 
-        private String MaxVertexCount()
+        private int MaxVertexCount()
         {
-            string highest = String.Empty;
+            int highest = -1;
             int colorCount = 0;
             int highestCount = 0;
 
-            foreach(KeyValuePair<string, Vertex> kvp in dictionary)
+            foreach(KeyValuePair<int, Vertex> kvp in dictionary)
             {
                 if (kvp.Value.color == 0)
                 {
                     foreach (int vertex in kvp.Value.AdjacencyList)
                     {
 
-                        if (dictionary[vertex.ToString()].color > 0)
+                        if (dictionary[vertex].color > 0)
                         {
                             colorCount++;
                         }
@@ -218,6 +225,36 @@ namespace LatinSquare
             }
             //Console.WriteLine("Highest: {0}", highest);
             return highest;
+        }
+
+        private List<Tuple<int,int>> MaxVertexCountList()
+        {
+            string highest = String.Empty;
+            int colorCount = 0;
+            var vertexCountList = new List<Tuple<int, int>>();
+
+            foreach(KeyValuePair<int, Vertex> kvp in dictionary)
+            {
+                if (kvp.Value.color == 0)
+                {
+                    foreach (int vertex in kvp.Value.AdjacencyList)
+                    {
+
+                        if (dictionary[vertex].color > 0)
+                        {
+                            colorCount++;
+                        }
+                    }
+
+                    vertexCountList.Add(new Tuple<int, int>(kvp.Key, colorCount));
+
+                    colorCount = 0;
+                }
+            }
+
+            var sortedVertexCount = vertexCountList.OrderByDescending(t => t.Item2).ToList();
+
+            return sortedVertexCount;
         }
     }
 }
